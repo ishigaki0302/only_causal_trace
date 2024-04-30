@@ -1,71 +1,35 @@
-# roopディレクトリへ移動
-def sys_path_to_root():
-    import os, sys
-    ROOT_PATH = 'rome'
-    # スクリプトのディレクトリパスを取得
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    # rootディレクトリのパスを計算
-    root_directory = os.path.abspath(os.path.join(script_directory, ROOT_PATH))
-    sys.path.append(root_directory)
-sys_path_to_root()
-
-import os, re, json
-print(os.getcwd())
 import torch, numpy
-import pandas as pd
 from collections import defaultdict
 import datetime
-from pathlib import Path
-import yaml
-import json
-from pathlib import Path
 import torch
-from torch.utils.data import Dataset
-
 import nethook
 from knowns import KnownsDataset
 from globals import DATA_DIR
 from causal_trace import (
     ModelAndTokenizer,
     layername,
-    guess_subject,
     plot_trace_heatmap,
     make_inputs,
     decode_tokens,
     find_token_range,
     predict_from_input,
     collect_embedding_std,
-    predict_token,
 )
-
 dt_now = datetime.datetime.now()
 torch.set_grad_enabled(False)
 
 # model_name = "gpt2-xl"
-# model_name = "EleutherAI/gpt-j-6B"
+model_name = "EleutherAI/gpt-j-6B"
 # model_name = "EleutherAI/gpt-neox-20b"
 # model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
-model_name = "rinna/japanese-gpt-neox-3.6b"
+# model_name = "rinna/japanese-gpt-neox-3.6b"
 # model_name = "cyberagent/open-calm-7b"
+# model_name = "meta-llama/Meta-Llama-3-8B"
+
 mt = ModelAndTokenizer(
     model_name,
-    # low_cpu_mem_usage=IS_COLAB,
     torch_dtype=(torch.float16 if "20b" in model_name else None),
 )
-
-# 知識編集対象モデルのテスト用
-# predict_token(
-#     mt,
-#     # ["Megan Rapinoe plays the sport of", "The Space Needle is in the city of"],
-#     ["In which city's downtown is the Space Needle located?"],
-#     # ["ユーザー: ミーガン・ラピノーがプレーするスポーツはなんですか？<NL>システム: ","ユーザー: スペース・ニードルのある街はどこですか？<NL>システム: "],
-#     # ["ユーザー: ミーガン・ラピノーがプレーするスポーツはなんですか？<NL>システム: "],
-#     # ["ユーザー: 日本で一番高い山はなんですか？<NL>システム: "],
-#     # ["日本で一番高い山はなんですか？"],
-#     return_p=True,
-#     o="Seattle",
-#     # o="富士山",
-# )
 
 # 既知の事実のデータセットを読み込む
 knowns = KnownsDataset(DATA_DIR)
@@ -73,7 +37,7 @@ knowns = KnownsDataset(DATA_DIR)
 print([k["subject"] for k in knowns])
 
 # 既知の事実のデータセットを再度読み込む
-knowns = KnownsDataset(DATA_DIR)  
+knowns = KnownsDataset(DATA_DIR)
 # 言語モデルのエンベディングの標準偏差を計算し、ノイズレベルを設定
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
 print(f"Using noise level {noise_level}")
@@ -106,7 +70,7 @@ def trace_with_patch(
     # モデルパッチングルールを定義する
     def patch_rep(x, layer):
         if layer == embed_layername:
-            # 要求された場合、バッチアイテムのトークン埋め込みを範囲で破損させる
+            # 指定した範囲(subject)のトークン埋め込みを破損させる処理
             if tokens_to_mix is not None:
                 b, e = tokens_to_mix
                 x[1:, b:e] += noise * torch.from_numpy(
@@ -115,7 +79,7 @@ def trace_with_patch(
             return x
         if layer not in patch_spec:
             return x
-        # このレイヤーがパッチングスペックに含まれている場合、選択されたトークンの未破損の隠れ状態を復元する
+        # 引数のレイヤーがpatch_specに含まれている場合、選択されたトークン位置の隠れ状態をクリーンな隠れ状態に復元する
         h = untuple(x)
         for t in patch_spec[layer]:
             h[1:, t] = h[0, t]
@@ -246,9 +210,6 @@ def plot_hidden_flow(
     modelname=None,
     savepdf=None,
 ):
-    # 主語sが指定されていない場合、入力から推測する
-    if subject is None:
-        subject = guess_subject(prompt)
     # 隠れ状態のフローを計算
     result = calculate_hidden_flow(
         mt, prompt, subject, o, samples=samples, noise=noise, window=window, kind=kind
