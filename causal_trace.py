@@ -32,7 +32,7 @@ class ModelAndTokenizer:
             # model = AutoModelForCausalLM.from_pretrained(
             #     model_name, low_cpu_mem_usage=low_cpu_mem_usage, torch_dtype=torch_dtype
             # )
-            model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch_dtype)
+            model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch_dtype, device_map="auto")
             nethook.set_requires_grad(False, model)
             model.eval().cuda()
         self.tokenizer = tokenizer
