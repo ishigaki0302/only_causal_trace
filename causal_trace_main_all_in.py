@@ -19,7 +19,8 @@ dt_now = datetime.datetime.now()
 torch.set_grad_enabled(False)
 
 # model_name = "gpt2-xl"
-model_name = "EleutherAI/gpt-j-6B"
+# model_name = "EleutherAI/gpt-j-6B"
+model_name = "Ryoma0302/gpt_0.76B_global_step13000"
 # model_name = "EleutherAI/gpt-neox-20b"
 # model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
 # model_name = "rinna/japanese-gpt-neox-3.6b"
@@ -232,17 +233,17 @@ def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=No
         three_result.append(result)
     return three_result
 
-# prompt = "Windows Media Player is developed by"
+prompt = "Windows Media Player is developed by"
 # new_prompt = "Who developed Windows Media Player?"
-# subject = "Windows Media Player"
-# attribute = "Microsoft"
-prompt = "大谷翔平が所属するチームはどこですか？"
+subject = "Windows Media Player"
+attribute = "Microsoft"
+# prompt = "大谷翔平が所属するチームはどこですか？"
 # prompt = "Shohei Ohtani is a member of the"
 # prompt = "Where does Shohei Ohtani belong?"
 # new_prompt = "Who developed Windows Media Player?"
-subject = "大谷翔平"
+# subject = "大谷翔平"
 # subject = "Shohei Ohtani"
-attribute = "エンゼルス"
+# attribute = "エンゼルス"
 # attribute = "Angels"
 plot_all_flow(mt, prompt=prompt, subject=subject, o=attribute, noise=noise_level, savepdf=f'result_pdf/0')
 # plot_all_flow(mt, prompt=new_prompt, subject=subject, o=attribute, noise=noise_level, savepdf=f'result_pdf/1')

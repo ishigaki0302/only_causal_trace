@@ -24,8 +24,8 @@ class ModelAndTokenizer:
         if tokenizer is None:
             assert model_name is not None
             print("tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)")
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            # tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+            # tokenizer = AutoTokenizer.from_pretrained(model_name)
+            tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
         if model is None:
             assert model_name is not None
             print("model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch_dtype)")
