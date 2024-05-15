@@ -337,7 +337,10 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         # data = plot_all_flow(mt, prompt=prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         # data = plot_all_flow(mt, prompt=prompt_templates[0]+new_prompt+prompt_templates[1], subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         # data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
-        data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', iter=i, kind=kind)
+        try:
+            data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', iter=i, kind=kind)
+        except:
+            continue
         all_flow_data.append(data)
         # # (n,36,1)→(n,36)に変更する必要があった
         # scores = data["scores"].squeeze().to('cpu')
