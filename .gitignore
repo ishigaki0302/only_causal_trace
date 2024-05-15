@@ -170,5 +170,6 @@ cython_debug/
 *notebooks/
 *original/
 *output_model
+*wandb
 
 # ROME_server/

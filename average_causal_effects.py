@@ -1,17 +1,5 @@
-# roopディレクトリへ移動
-def sys_path_to_root():
-    import os, sys
-    ROOT_PATH = 'rome'
-    # スクリプトのディレクトリパスを取得
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    # rootディレクトリのパスを計算
-    root_directory = os.path.abspath(os.path.join(script_directory, ROOT_PATH))
-    sys.path.append(root_directory)
-sys_path_to_root()
-
 import os
 print(os.getcwd())
-
 import numpy, os
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -32,6 +20,9 @@ from causal_trace import (
     predict_from_input,
     collect_embedding_std,
 )
+from PIL import Image
+import wandb
+wandb.init(project="knowledge-editing", name="Ryoma0302/gpt_0.76B_global_step20000_japanese", entity="dsml-kernel24")
 
 # all_flow_dataの配列が省略されることがあるので、それ対策
 torch.set_printoptions(threshold=10_000)
@@ -285,21 +276,24 @@ def plot_hidden_flow(
     kind=None,
     modelname=None,
     savepdf=None,
+    iter=None,
 ):
     result = calculate_hidden_flow(
         mt, prompt, subject, o, samples=samples, noise=noise, window=window, kind=kind
     )
     plot_trace_heatmap(result, savepdf, modelname=modelname)
+    image = Image.open(f"{savepdf}.png")
+    wandb.log({"graph": wandb.Image(image, caption=kind)}, step=iter)
     return result
 
 
-def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=None, savepdf=None, kind=None):
+def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=None, savepdf=None, iter=None, kind=None):
     if kind is None:
         savepdf=f"hidden_{savepdf}"
     else:
         savepdf=f"{kind}_{savepdf}"
     result = plot_hidden_flow(
-        mt, prompt, subject, o, modelname=modelname, noise=noise, kind=kind, savepdf=f'result_pdf/{dt_now}/{savepdf}'
+        mt, prompt, subject, o, modelname=modelname, noise=noise, kind=kind, savepdf=f'result_pdf/{dt_now}/{savepdf}', iter=iter
     )
     return result
 
@@ -343,10 +337,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         # data = plot_all_flow(mt, prompt=prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         # data = plot_all_flow(mt, prompt=prompt_templates[0]+new_prompt+prompt_templates[1], subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         # data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
-        try:
-            data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
-        except:
-            continue
+        data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', iter=i, kind=kind)
         all_flow_data.append(data)
         # # (n,36,1)→(n,36)に変更する必要があった
         # scores = data["scores"].squeeze().to('cpu')
@@ -464,6 +455,8 @@ def plot_array(
     if savepdf:
         os.makedirs(os.path.dirname(savepdf), exist_ok=True)
         plt.savefig(savepdf, bbox_inches="tight")
+        image = Image.open(savepdf)
+        wandb.log({"graph": wandb.Image(image, caption=f"all_{kind}")})
     plt.show()
 
 
@@ -541,3 +534,5 @@ savepdf = f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf"
 # plt.savefig(f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf")
 os.makedirs(os.path.dirname(savepdf), exist_ok=True)
 plt.savefig(savepdf)
+image = Image.open(savepdf)
+wandb.log({"graph": wandb.Image(image, caption="all")})
