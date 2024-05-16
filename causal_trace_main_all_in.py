@@ -61,47 +61,47 @@ def trace_with_patch(
     # 再現性のために、疑似ランダムノイズを使用
     prng = numpy.random.RandomState(1)
     # パッチを適用するレイヤーとトークンのマッピングを作成
-    patch_spec = defaultdict(list)
+    patch_spec = defaultdict(list)  # デフォルト値がリストのディクショナリを作成
     for t, l in states_to_patch:
-        patch_spec[l].append(t)
+        patch_spec[l].append(t)  # レイヤー名をキー、トークンインデックスをリストの要素として追加
     # 埋め込み層の名前を取得
-    embed_layername = layername(model, 0, "embed")
+    embed_layername = layername(model, 0, "embed")  # モデルの最初の埋め込み層の名前を取得
     def untuple(x):
-        return x[0] if isinstance(x, tuple) else x
+        return x[0] if isinstance(x, tuple) else x  # タプルの場合は最初の要素を返し、そうでない場合はそのまま返す
     # モデルパッチングルールを定義する
     def patch_rep(x, layer):
         if layer == embed_layername:
             # 指定した範囲(subject)のトークン埋め込みを破損させる処理
             if tokens_to_mix is not None:
-                b, e = tokens_to_mix
+                b, e = tokens_to_mix  # 破損させるトークンの範囲を取得
                 x[1:, b:e] += noise * torch.from_numpy(
-                    prng.randn(x.shape[0] - 1, e - b, x.shape[2])
+                    prng.randn(x.shape[0] - 1, e - b, x.shape[2])  # 正規分布から乱数を生成し、テンソルに変換
                 ).to(x.device)
             return x
         if layer not in patch_spec:
-            return x
+            return x  # パッチを適用しない場合はそのまま返す
         # 引数のレイヤーがpatch_specに含まれている場合、選択されたトークン位置の隠れ状態をクリーンな隠れ状態に復元する
-        h = untuple(x)
+        h = untuple(x)  # タプルの場合は最初の要素を取り出す
         for t in patch_spec[layer]:
-            h[1:, t] = h[0, t]
+            h[1:, t] = h[0, t]  # 指定されたトークン位置の隠れ状態を、バッチの最初の要素の隠れ状態で置き換える
         return x
     # パッチングルールが定義されたら、パッチされたモデルを推論中に実行する
-    additional_layers = [] if trace_layers is None else trace_layers
+    additional_layers = [] if trace_layers is None else trace_layers  # トレースするレイヤーがない場合は空のリストを使用
     with torch.no_grad(), nethook.TraceDict(
         model,
-        [embed_layername] + list(patch_spec.keys()) + additional_layers,
-        edit_output=patch_rep,
+        [embed_layername] + list(patch_spec.keys()) + additional_layers,  # パッチを適用するレイヤーとトレースするレイヤーを指定
+        edit_output=patch_rep,  # パッチングルールを適用する関数を指定
     ) as td:
-        outputs_exp = model(**inp)
+        outputs_exp = model(**inp)  # パッチを適用したモデルで推論を実行
     # 指定されたanswers_tトークンの予測確率を計算し、報告する
     probs = torch.softmax(outputs_exp.logits[1:, -1, :], dim=1).mean(dim=0)[answers_t]
     # すべてのレイヤーをトレースする場合、すべての活性化を収集して返す
     if trace_layers is not None:
         all_traced = torch.stack(
-            [untuple(td[layer].output).detach().cpu() for layer in trace_layers], dim=2
+            [untuple(td[layer].output).detach().cpu() for layer in trace_layers], dim=2  # 各レイヤーの出力を収集し、新しい次元に沿ってスタックする
         )
-        return probs, all_traced
-    return probs
+        return probs, all_traced  # answers_tトークンの予測確率とトレースされた活性化を返す
+    return probs  # answers_tトークンの予測確率を返す
 
 def calculate_hidden_flow(
     mt, prompt, subject, o="Seattle", samples=10, noise=0.1, window=10, kind=None

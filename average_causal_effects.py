@@ -284,6 +284,10 @@ def plot_hidden_flow(
     plot_trace_heatmap(result, savepdf, modelname=modelname)
     image = Image.open(f"{savepdf}.png")
     wandb.log({"graph": wandb.Image(image, caption=kind)}, step=iter)
+    if kind is None:
+        wandb.log({f"hidden_graph": wandb.Image(image, caption=kind)}, step=iter)
+    else:
+        wandb.log({f"{kind}_graph": wandb.Image(image, caption=kind)}, step=iter)
     return result
 
 
@@ -460,7 +464,10 @@ def plot_array(
         os.makedirs(os.path.dirname(savepdf), exist_ok=True)
         plt.savefig(savepdf, bbox_inches="tight")
         image = Image.open(savepdf)
-        wandb.log({"graph": wandb.Image(image, caption=f"all_{kind}")})
+        if kind is None:
+            wandb.log({f"all_hidden_graph": wandb.Image(image, caption=kind)}, step=iter)
+        else:
+            wandb.log({f"all_{kind}_graph": wandb.Image(image, caption=f"all_{kind}")})
     plt.show()
 
 
@@ -541,4 +548,4 @@ savepdf = f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.png"
 os.makedirs(os.path.dirname(savepdf), exist_ok=True)
 plt.savefig(savepdf)
 image = Image.open(savepdf)
-wandb.log({"graph": wandb.Image(image, caption="all")})
+wandb.log({"all_graph": wandb.Image(image, caption="all")})
