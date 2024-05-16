@@ -284,7 +284,7 @@ def plot_hidden_flow(
     plot_trace_heatmap(result, savepdf, modelname=modelname)
     image = Image.open(f"{savepdf}.png")
     if kind is None:
-        wandb.log({f"hidden_graph": wandb.Image(image, caption=kind)}, step=iter)
+        wandb.log({f"hidden_graph": wandb.Image(image, caption="hidden")}, step=iter)
     else:
         wandb.log({f"{kind}_graph": wandb.Image(image, caption=kind)}, step=iter)
     return result
@@ -464,7 +464,7 @@ def plot_array(
         plt.savefig(savepdf, bbox_inches="tight")
         image = Image.open(savepdf)
         if kind is None:
-            wandb.log({f"all_hidden_graph": wandb.Image(image, caption=kind)}, step=iter)
+            wandb.log({f"all_hidden_graph": wandb.Image(image, caption=f"all_hidden")})
         else:
             wandb.log({f"all_{kind}_graph": wandb.Image(image, caption=f"all_{kind}")})
     plt.show()
