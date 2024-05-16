@@ -56,7 +56,7 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
 
-arch = "Ryoma0302/gpt_0.76B_global_step20000_japanese"
+arch = "Ryoma0302_gpt_0.76B_global_step20000_japanese"
 archname = "transformer"
 
 dt_now = datetime.datetime.now()
@@ -435,7 +435,8 @@ def plot_array(
     fig, ax = plt.subplots(figsize=(3.5, 2), dpi=200)
     h = ax.pcolor(
         differences,
-        cmap={None: "Purples", "mlp": "Greens", "attn": "Reds"}[kind],
+        # cmap={None: "Purples", "mlp": "Greens", "attn": "Reds"}[kind],
+        cmap="Reds",
         # vmin=low_score,
         # vmax=high_score,
     )
@@ -488,9 +489,11 @@ for kind in [None, "mlp", "attn"]:
         low_score=0.0,
         high_score=high_score,
         archname=archname,
-        savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.pdf",
+        savepdf=f"results/{arch}/causal_trace/summary_pdfs/rollup{kindcode}.png",
     )
     df_all_flow_data = pd.DataFrame(d["all_flow_data"])
+    if not os.path.exists(f"data/all_flow_data/"):
+        os.makedirs(f"data/all_flow_data/")
     df_all_flow_data.to_csv(f"data/all_flow_data/{arch}{kindcode}.csv", index=False)
 
 labels = [
@@ -533,7 +536,7 @@ for j, (kind, title) in enumerate(
     # axes[j].set_ylim(0.1, 0.3)
 axes[1].legend(frameon=False)
 plt.tight_layout()
-savepdf = f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf"
+savepdf = f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.png"
 # plt.savefig(f"results/{arch}/causal_trace/summary_pdfs/lineplot-causaltrace.pdf")
 os.makedirs(os.path.dirname(savepdf), exist_ok=True)
 plt.savefig(savepdf)
