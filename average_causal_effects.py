@@ -283,6 +283,7 @@ def plot_hidden_flow(
     )
     plot_trace_heatmap(result, savepdf, modelname=modelname)
     image = Image.open(f"{savepdf}.png")
+    # ここの挙動を後で要確認
     if kind is None:
         wandb.log({f"hidden_graph": wandb.Image(image, caption="hidden")}, step=iter)
     else:
