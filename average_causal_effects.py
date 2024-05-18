@@ -90,7 +90,8 @@ mt = ModelAndTokenizer(
 csv_file_path = "data/en2jp_data.csv"
 df = pd.read_csv(csv_file_path)
 # df = df.dropna()
-data_len = len(df)
+# data_len = len(df)
+data_len = 1
 
 knowns = KnownsDataset(DATA_DIR)  # Dataset of known facts
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
@@ -342,6 +343,9 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         # data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         try:
             data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
+        except KeyboardInterrupt:
+            print("プログラムが中断されました。")
+            break
         except:
             continue
         all_flow_data.append(data)
