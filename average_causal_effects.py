@@ -276,7 +276,6 @@ def plot_hidden_flow(
     kind=None,
     modelname=None,
     savepdf=None,
-    iter=None,
 ):
     result = calculate_hidden_flow(
         mt, prompt, subject, o, samples=samples, noise=noise, window=window, kind=kind
@@ -285,19 +284,19 @@ def plot_hidden_flow(
     image = Image.open(f"{savepdf}.png")
     # ここの挙動を後で要確認
     if kind is None:
-        wandb.log({f"hidden_graph": wandb.Image(image, caption="hidden")}, step=iter)
+        wandb.log({f"hidden_graph": wandb.Image(image, caption="hidden")})
     else:
-        wandb.log({f"{kind}_graph": wandb.Image(image, caption=kind)}, step=iter)
+        wandb.log({f"{kind}_graph": wandb.Image(image, caption=kind)})
     return result
 
 
-def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=None, savepdf=None, iter=None, kind=None):
+def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=None, savepdf=None, kind=None):
     if kind is None:
         savepdf=f"hidden_{savepdf}"
     else:
         savepdf=f"{kind}_{savepdf}"
     result = plot_hidden_flow(
-        mt, prompt, subject, o, modelname=modelname, noise=noise, kind=kind, savepdf=f'result_pdf/{dt_now}/{savepdf}', iter=iter
+        mt, prompt, subject, o, modelname=modelname, noise=noise, kind=kind, savepdf=f'result_pdf/{dt_now}/{savepdf}'
     )
     return result
 
@@ -342,7 +341,7 @@ def read_knowlege(count=150, kind=None, arch="gpt2-xl"):
         # data = plot_all_flow(mt, prompt=prompt_templates[0]+new_prompt+prompt_templates[1], subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         # data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         try:
-            data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', iter=i, kind=kind)
+            data = plot_all_flow(mt, prompt=new_prompt, subject=knowledge["subject"], o=knowledge["attribute"], noise=noise_level, savepdf=f'result_pdf/{i}', kind=kind)
         except:
             continue
         all_flow_data.append(data)
