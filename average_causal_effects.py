@@ -21,8 +21,6 @@ from causal_trace import (
     collect_embedding_std,
 )
 from PIL import Image
-import wandb
-wandb.init(project="knowledge-editing", name="Ryoma0302/gpt_0.76B_global_step20000_japanese", entity="dsml-kernel24")
 
 # all_flow_dataの配列が省略されることがあるので、それ対策
 torch.set_printoptions(threshold=10_000)
@@ -43,8 +41,8 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 
 # arch = 'rinna_japanese-gpt-neox-3.6b-instruction-sft'
 # arch = "rinna_japanese-gpt-neox-3.6b_add_prompt"
-# arch = "rinna_japanese-gpt-neox-3.6b"
-# archname = 'GPT-NEOX-3.6B'
+arch = "rinna_japanese-gpt-neox-3.6b"
+archname = 'GPT-NEOX-3.6B'
 
 # arch = "matsuo-lab_weblab-10b"
 # arch = "cyberagent_open-calm-7b"
@@ -56,8 +54,8 @@ plt.rcParams["mathtext.fontset"] = "dejavuserif"
 # arch = 'EleutherAI_gpt-neox-20b'
 # archname = 'GPT-NeoX-20B'
 
-arch = "Ryoma0302_gpt_0.76B_global_step20000_japanese"
-archname = "transformer"
+# arch = "Ryoma0302_gpt_0.76B_global_step20000_japanese"
+# archname = "transformer"
 
 dt_now = datetime.datetime.now()
 # data_len = 1000
@@ -66,12 +64,16 @@ torch.set_grad_enabled(False)
 # model_name = "gpt2-xl"
 # model_name = "EleutherAI/gpt-j-6B"
 # model_name = "rinna/japanese-gpt-neox-3.6b-instruction-sft"
-# model_name = "rinna/japanese-gpt-neox-3.6b"
+model_name = "rinna/japanese-gpt-neox-3.6b"
 # model_name = "rinna/japanese-gpt2-medium"
 # model_name = "naclbit/gpt-j-japanese-6.8b"
 # model_name = "matsuo-lab/weblab-10b"
 # model_name = "cyberagent/open-calm-7b"
-model_name = "Ryoma0302/gpt_0.76B_global_step20000_japanese"
+# model_name = "Ryoma0302/gpt_0.76B_global_step20000_japanese"
+
+import wandb
+wandb.init(project="knowledge-editing", name=f"{model_name}:{dt_now}", entity="dsml-kernel24")
+
 '''''
 使うときは,
 experiments.causal_traceのpredict_from_input
