@@ -36,9 +36,6 @@ mt = ModelAndTokenizer(
 knowns = KnownsDataset(DATA_DIR)
 # データセット内の各事実の主語を表示
 print([k["subject"] for k in knowns])
-
-# 既知の事実のデータセットを再度読み込む
-knowns = KnownsDataset(DATA_DIR)
 # 言語モデルのエンベディングの標準偏差を計算し、ノイズレベルを設定
 noise_level = 3 * collect_embedding_std(mt, [k["subject"] for k in knowns])
 print(f"Using noise level {noise_level}")

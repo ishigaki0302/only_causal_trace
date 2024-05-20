@@ -123,6 +123,7 @@ class Avg:
 
     def size(self):
         return sum(datum.shape[0] for datum in self.d)
+
 def trace_with_patch(
     model,  # The model
     inp,  # A set of inputs
@@ -225,7 +226,6 @@ def calculate_hidden_flow(
         kind=kind or "",
     )
 
-
 def trace_important_states(model, num_layers, inp, e_range, answer_t, noise=0.1):
     ntoks = inp["input_ids"].shape[1]
     table = []
@@ -243,7 +243,6 @@ def trace_important_states(model, num_layers, inp, e_range, answer_t, noise=0.1)
             row.append(r)
         table.append(torch.stack(row))
     return torch.stack(table)
-
 
 def trace_important_window(
     model, num_layers, inp, e_range, answer_t, kind, window=10, noise=0.1
@@ -289,7 +288,6 @@ def plot_hidden_flow(
     else:
         wandb.log({f"{kind}_graph": wandb.Image(image, caption=kind)})
     return result
-
 
 def plot_all_flow(mt, prompt, subject=None, o="Seattle", noise=0.1, modelname=None, savepdf=None, kind=None):
     if kind is None:
@@ -472,7 +470,6 @@ def plot_array(
         else:
             wandb.log({f"all_{kind}_graph": wandb.Image(image, caption=f"all_{kind}")})
     plt.show()
-
 
 the_count = data_len
 count = data_len
